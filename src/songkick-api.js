@@ -9,12 +9,17 @@ var baseUrl = 'http://api.songkick.com/api/3.0';
 function makeRequest(url, resultType) {
     var deferred = Q.defer();
     request.get(url, function(error, response, body) {
-        body = JSON.parse(body);
-        if (body.resultsPage.status === 'error') {
+        try {
+          body = JSON.parse(body);
+          if (body.resultsPage.status === 'error') {
             deferred.reject(body.resultsPage.error);
             return;
+          }
+          deferred.resolve(body.resultsPage.results[resultType]);
+        } catch (err) {
+          deferred.reject(err);
         }
-        deferred.resolve(body.resultsPage.results[resultType]);
+        
     });
     return deferred.promise;
 }
